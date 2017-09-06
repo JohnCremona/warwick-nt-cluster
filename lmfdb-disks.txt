@@ -32,7 +32,7 @@ DG1-DG10 (the other 10 disks, VD0, VD2,...,VD10) use no hardware RAID,
 i.e. they are set as RAID-0.  There is a single partition /data on
 device /dev/sdg, which is configured under BTRFS.  This allows each of
 the 10 physical disks to be brough online / offline individually.  At
-present (June 2017) 7 of these are in use, as revealed by:
+present (September 2017) 9 of these are in use, as revealed by:
 
 jec@lmfdb:~/system$ sudo btrfs fi show
 Label: lmfdb  uuid: 495a3b08-5ae4-45e5-a994-d2aa0ca1c480
@@ -44,6 +44,8 @@ Label: lmfdb  uuid: 495a3b08-5ae4-45e5-a994-d2aa0ca1c480
 	devid    5 size 3.64TiB used 3.25TiB path /dev/sdf
 	devid    6 size 3.64TiB used 3.25TiB path /dev/sdg
 	devid    7 size 3.64TiB used 3.25TiB path /dev/sdh
+	devid    8 size 3.64TiB used 0.00 path /dev/sdi
+	devid    9 size 3.64TiB used 0.00 path /dev/sdj
 
 The O/S sees only one partition, on device /dev/sdg: see /etc/fstab
 where the relevant entry is
@@ -56,16 +58,14 @@ RAID on that.  In fact 11.98T are used (see above output) but (in
 effect) duplicated by btrfs.
 
 Note that the physical disk block devices used by this partition are
-/dev/sd{x} for x=a,c,d,e,f,g,h (NOT b!).  I think these letters
+/dev/sd{x} for x=a,c,d,e,f,g,h,i,j,k (NOT b!).  I think these letters
 correspond to the VDs, so /dev/sda=VD0, /dev/sdc=VD2, ...,
 /dev/sdg=VD6 and the reason for /dev/sdb being missing is that it is
 the other DG, i.e. DG0 (=VD1).
 
-To add a new device, use "sudo btrfs device add", for example 
+To add a new device, use "sudo btrfs device add", for example
 
-"sudo btrfs device add /dev/sdh /data" to add VD8
-"sudo btrfs device add /dev/sdh /data" to add VD9
-"sudo btrfs device add /dev/sdh /data" to add VD10
+"sudo btrfs device add /dev/sdk /data" to add VD10
 
 followed by "sudo btrfs balance /data".  This takes a very long time; you
 can use "sudo btrfs fi show to see how it is going.
@@ -76,5 +76,12 @@ Data, RAID1: total=12.71TiB, used=11.96TiB
 System, RAID1: total=32.00MiB, used=1.89MiB
 Metadata, RAID1: total=22.00GiB, used=19.46GiB
 
-I did "sudo btrfs device add /dev/sdh /data" on Thu Jan 7 16:35:24
-GMT 2016.
+Thu Jan 7 16:35:24 GMT 2016
+I did "sudo btrfs device add /dev/sdh /data"
+
+Tue Sep 20 14:10:01 BST 2016
+I did "sudo btrfs device add /dev/sdi /data"
+and   "sudo btrfs device add /dev/sdj /data"
+and then "sudo btrfs balance /data" (NB this runs in the foreground)
+--still running, use "sudo btrfs balance status /data" for a progress report
+
